@@ -1,0 +1,67 @@
+Intervale:
+- (8, 10)
+- (10, 12)
+- (12, 14)
+- (14, 16)
+- (16, 18)
+- (18, 20)
+Zile:
+- Luni
+- Marti
+- Miercuri
+- Joi
+- Vineri
+Materii:
+  SOC: 100
+  POO: 30
+  TSC: 40
+  PM: 90
+Sali:
+  EG304:
+    Capacitate: 50
+    Materii:
+      - SOC
+      - PM
+  PR001:
+    Capacitate: 30
+    Materii:
+      - POO
+      - PM
+  EC105:
+    Capacitate: 40
+    Materii:
+      - TSC
+      - POO
+Profesori:
+  Dan Tudose:
+    Constrangeri:
+      - Luni
+      - Marti
+      - '!Miercuri'
+      - '!8-10'
+      - '!12-14'
+      - 10-12
+    Materii:
+      - SOC
+      - PM
+      - TSC
+  Cornel Popescu:
+    Constrangeri:
+      - Marti
+      - Miercuri
+      - 8-10
+      - 12-14
+    Materii:
+      - SOC
+  Jan Vaduva:
+    Constrangeri:
+      - Joi
+      - Vineri
+    Materii:
+      - PM
+  Mihai Dascalu:
+    Constrangeri:
+      - Luni
+      - Vineri
+    Materii:
+      - POO
