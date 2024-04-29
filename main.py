@@ -1,6 +1,8 @@
 from math import inf
 from typing import Literal, cast
 from sys import argv, exit
+from commons import Commons
+from timetable_hc import TimetableHC
 from csp import PCSP, Constraint
 from efficient_lists import ViewList
 from utils import pretty_print_timetable
@@ -16,6 +18,7 @@ REP_COURSES: dict[str, list[str]]
 CAP_ROOMS: dict[str, int]
 CAP_COURSES: dict[str, int]
 PREFERENCES: dict[str, set[range | str]] = {}
+TOTAL_SLOTS: int
 
 TOTAL_CAPACITY: int
 NEEDED_CAPACITY: int
@@ -33,11 +36,13 @@ def read_data(file: str):
     global TOTAL_CAPACITY
     global NEEDED_CAPACITY
     global PREFERENCES
+    global TOTAL_SLOTS
 
     with open(file, 'r') as f:
         data = yaml_load(f)
         SLOTS = list(map(lambda s: int(s[1:].split(',')[0]), data['Intervale']))
         DAYS = data['Zile']
+        TOTAL_SLOTS = len(SLOTS) * len(DAYS)
         ROOMS = data['Sali'].keys()
         TEACHERS = data['Profesori'].keys()
         COURSES = data['Materii'].keys()
@@ -79,7 +84,9 @@ def csp():
         teacher, _ = a
         day, slot, _ = var
         pref = PREFERENCES[teacher]
-        return 2 * (day in pref) + ((slot, slot + 2) in pref)
+        slots_count = sum(len(SLOTS) if isinstance(p, str) else len(p) for p in pref)
+        slots_count = TOTAL_SLOTS - slots_count
+        return 2 * TOTAL_SLOTS * (day in pref) + TOTAL_SLOTS * (range(slot, slot + 2, 2) in pref) + slots_count
 
     domains = {
         var: ViewList(sort([
@@ -88,6 +95,7 @@ def csp():
         ], lambda a: teacher_order(var, a)) + [None])
         for var in variables
     }
+    # print(domains)
 
     constraints: list[Constraint[VarType, Domain]] = []
     for teacher, pref_set in PREFERENCES.items():
@@ -150,7 +158,7 @@ def csp():
     # constraint: T - C >= Y - Z
 
     pcsp.dependencies = dependencies
-    return pcsp.solve(ViewList(variables), domains, constraints, acceptable_cost=1)
+    return pcsp.solve(ViewList(variables), domains, constraints, acceptable_cost=0)
 
 def hc():
     pass
@@ -167,7 +175,11 @@ def main(algo: Literal['csp'] | Literal['hc'], input_file: str):
             } for day in DAYS
         }, f"inputs/{input_file}.yaml"))
         print(f"Final cost: {cost}, iterations: {iterations}")
-    else: hc()
+    else:
+        Commons.read_data(f'inputs/{input_file}.yaml')
+        hc = TimetableHC()
+        solution = hc.solve()
+        Commons.print_timetable(solution)
 
 if __name__ == '__main__':
     if len(argv) != 3:

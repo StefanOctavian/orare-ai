@@ -137,7 +137,7 @@ class PCSP(Generic[VarType, Domain]):
 
         if dep_cost < inf:
             evaluable_constraints = self._constraints_for_var(var)
-            log(f"|evaluable_constraints|: {len(list(evaluable_constraints))}")
+            # log(f"|evaluable_constraints|: {len(list(evaluable_constraints))}")
             new_cost += sum(map(lambda c: c[C_COST], 
                                 filter(lambda c: not self._check_constraint(c), 
                                         evaluable_constraints)))
